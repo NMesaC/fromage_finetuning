@@ -47,4 +47,4 @@ if __name__ == "__main__":
     if image_urls == []:
         raise ValueError("Please replace `image_urls` with a list of image urls.")
 
-    extract_embeddings_for_urls(image_urls, "fromage_model/scizor_embeddings.pkl")
+    extract_embeddings_for_urls(image_urls, "../fromage_model/scizor_embeddings.pkl")
