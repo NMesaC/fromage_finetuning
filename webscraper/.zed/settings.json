@@ -1,0 +1,15 @@
+{
+  "lsp": {
+    "pyright": {
+      "settings": {
+        "python.analysis": {
+          "diagnosticMode": "workspace",
+          "typeCheckingMode": "strict"
+        },
+        "python": {
+          "pythonPath": "/opt/anaconda3/envs/webscraper/lib/python3.12"
+        }
+      }
+    }
+  }
+}

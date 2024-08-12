@@ -307,8 +307,9 @@ def main_worker(gpu, ngpus_per_node, args):
   """Sets the learning rate to the initial LR decayed by 10 every 5 epochs"""
   scheduler_steplr = StepLR(optimizer, step_size=args.lr_schedule_step_size * args.steps_per_epoch, gamma=args.lr_schedule_gamma)
   scheduler = GradualWarmupScheduler(optimizer, multiplier=1.0, total_epoch=args.lr_warmup_steps, after_scheduler=scheduler_steplr)
-  
+
   # optionally resume from a checkpoint
+  # <Nico>
   if args.resume:
     if os.path.isfile(args.resume):
       print("=> loading checkpoint '{}'".format(args.resume))

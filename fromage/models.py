@@ -18,7 +18,7 @@ from transformers import AutoConfig, AutoModel, AutoModelForCausalLM
 from transformers import OPTForCausalLM, GPT2Tokenizer
 from transformers import CLIPVisionModel, CLIPVisionConfig
 
-from fromage import utils
+import utils
 
 
 class FrozenArgs:
@@ -278,7 +278,7 @@ class FromageModel(nn.Module):
           torch.zeros(prefix_embs.shape[:2], dtype=torch.int64).to(labels.device) - 100,
           full_labels
         ], axis=1)
-      
+
       pad_idx = []
       for label in full_labels:
         for k, token in enumerate(label):
@@ -624,7 +624,7 @@ class Fromage(nn.Module):
     input_ids = torch.cat(input_ids, dim=1)
 
     outputs = self.model.lm(inputs_embeds=input_embs, labels=input_ids, use_cache=False, output_hidden_states=True)
-    return -outputs.loss.item()  
+    return -outputs.loss.item()
 
 def load_fromage(model_dir: str) -> Fromage:
   model_args_path = os.path.join(model_dir, 'model_args.json')
@@ -687,4 +687,3 @@ def load_fromage(model_dir: str) -> Fromage:
   model.emb_matrix = emb_matrix
 
   return model
-
