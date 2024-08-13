@@ -5,3 +5,4 @@ __pycache__
 venv
 runs/
 data/
+fromage_model/cc3m_embeddings.pkl
