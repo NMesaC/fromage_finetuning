@@ -17,6 +17,9 @@ def download_and_save_image(url, directory):
 
     # Full path for the image
     filepath = os.path.join(directory, filename)
+    if ('jpg' not in filepath) and ('png' not in filepath) and ('webp' not in filepath) and ('jpeg' not in filepath):
+        print(f"{filepath} does not have any file extension!")
+        filepath += '.jpg'
 
     # Download the image
     response = requests.get(url)
