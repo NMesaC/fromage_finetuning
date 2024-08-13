@@ -18,7 +18,7 @@ from transformers import AutoConfig, AutoModel, AutoModelForCausalLM
 from transformers import OPTForCausalLM, GPT2Tokenizer
 from transformers import CLIPVisionModel, CLIPVisionConfig
 
-import utils
+from fromage import utils
 
 
 class FrozenArgs:
