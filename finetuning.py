@@ -42,6 +42,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 llm_models = ['facebook/opt-125m', 'facebook/opt-350m', 'facebook/opt-1.3b',
               'facebook/opt-2.7b', 'facebook/opt-6.7b', 'facebook/opt-13b', 'facebook/opt-30b',
               'facebook/opt-66b']
+
 # Added Scizor dataset <Nico>
 datasets = ['cc3m','scizor']
 best_score = 0  # Variable to keep track of best model so far.
@@ -57,10 +58,10 @@ def parse_args(args):
   parser.add_argument('--visual-model', default='openai/clip-vit-large-patch14', type=str,
                       help="Visual encoder to use.")
   parser.add_argument('-d', '--dataset', metavar='DATASET',  help='Delimited list of datasets:' +
-                      ' | '.join(datasets), default='cc3m',
+                      ' | '.join(datasets), default='scizor',
                       type=lambda s: [x for x in s.split(',')])
 
-  parser.add_argument('--val-dataset', metavar='DATASET', default='cc3m',
+  parser.add_argument('--val-dataset', metavar='DATASET', default='scizor',
             type=lambda s: [x for x in s.split(',')],
             help='Validation dataset: ' +
               ' | '.join(datasets) +
@@ -311,7 +312,6 @@ def main_worker(gpu, ngpus_per_node, args):
   scheduler = GradualWarmupScheduler(optimizer, multiplier=1.0, total_epoch=args.lr_warmup_steps, after_scheduler=scheduler_steplr)
 
   # optionally resume from a checkpoint
-  # <Nico>
   if args.resume:
     if os.path.isfile(args.resume):
       print("=> loading checkpoint '{}'".format(args.resume))

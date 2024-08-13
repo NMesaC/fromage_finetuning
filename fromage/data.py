@@ -35,6 +35,9 @@ def get_dataset(args, split: str, tokenizer, precision: str = 'fp32') -> Dataset
     if 'cc3m' in args.dataset:
       dataset_paths.append(os.path.join(args.dataset_dir, 'cc3m_train.tsv'))
       image_data_dirs.append(os.path.join(args.image_dir, 'cc3m/training/'))
+    elif 'scizor' in args.dataset:
+      dataset_paths.append(os.path.join(args.dataset_dir, 'scizor_train.tsv'))
+      image_data_dirs.append(os.path.join(args.image_dir, 'scizor/training/'))
     else:
       raise NotImplementedError
 
@@ -42,6 +45,9 @@ def get_dataset(args, split: str, tokenizer, precision: str = 'fp32') -> Dataset
     if 'cc3m' in args.val_dataset:
       dataset_paths.append(os.path.join(args.dataset_dir, 'cc3m_val.tsv'))
       image_data_dirs.append(os.path.join(args.image_dir, 'cc3m/validation'))
+    elif 'scizor' in args.dataset:
+      dataset_paths.append(os.path.join(args.dataset_dir, 'scizor_val.tsv'))
+      image_data_dirs.append(os.path.join(args.image_dir, 'scizor/validation/'))
     else:
       raise NotImplementedError
 
