@@ -57,7 +57,7 @@ for i in range(len(train_urls)):
     train_names.append(filename)
 
 for i in range(len(val_urls)):
-    filename = download_image(val_urls[i],training_img_path)
+    filename = download_image(val_urls[i],val_img_path)
     val_names.append(filename)
 
 # 2. Open the new tsv files
