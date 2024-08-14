@@ -643,9 +643,6 @@ def load_fromage(model_dir: str) -> Fromage:
   if len(embs_paths) == 0:
     raise ValueError(f'cc3m_embeddings_*.pkl files do not exist in {model_dir}.')
 
-  print("rrr")
-  exit(0)
-
   # Load embeddings.
   # Construct embedding matrix for nearest neighbor lookup.
   path_array = []
