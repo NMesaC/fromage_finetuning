@@ -630,7 +630,8 @@ def load_fromage(model_dir: str) -> Fromage:
   model_args_path = os.path.join(model_dir, 'model_args.json')
   model_ckpt_path = os.path.join(model_dir, 'full_ckpt.pth.tar')
   embs_paths = [s for s in glob.glob(os.path.join(model_dir, 'cc3m_embeddings*.pkl'))]
-
+  print("meowzers")
+  exit(0)
   # Trying to add Scizor embeddings
   for s in glob.glob(os.path.join(model_dir, 'scizor_embeddings*.pkl')):
       embs_paths.append(s)
@@ -640,7 +641,7 @@ def load_fromage(model_dir: str) -> Fromage:
   if not os.path.exists(model_args_path):
     raise ValueError(f'model_args.json does not exist in {model_dir}.')
   if not os.path.exists(model_ckpt_path):
-    raise ValueError(f'pretrained_ckpt.pth.tar does not exist in {model_dir}.')
+    raise ValueError(f'ckpt.pth.tar does not exist in {model_dir}.')
   if len(embs_paths) == 0:
     raise ValueError(f'cc3m_embeddings_*.pkl files do not exist in {model_dir}.')
 
