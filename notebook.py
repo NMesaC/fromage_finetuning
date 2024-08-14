@@ -5,7 +5,6 @@ from transformers import logging
 logging.set_verbosity_error()
 
 from PIL import Image
-!pip install matplotlib
 import matplotlib.pyplot as plt
 
 from fromage import models
