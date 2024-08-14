@@ -41,3 +41,18 @@ def display_interleaved_outputs(model_outputs, one_img_per_ret=True):
 # Load model used in the paper.
 model_dir = './fromage_model/finetuned_model'
 model = models.load_fromage(model_dir)
+
+# Load an image of a cat.
+inp_image = utils.get_image_from_url('https://img.pokemondb.net/artwork/large/scizor.jpg')
+
+# Get FROMAGe to retrieve images of cats in other styles.
+for inp_text in ['model [RET]', 'trading card [RET]']:
+    prompt = [inp_image, inp_text]
+    print('Prompt:')
+    display_interleaved_outputs(prompt)
+    print('=' * 30)
+    model_outputs = model.generate_for_images_and_texts(prompt, max_img_per_ret=3)
+
+    # Display outputs.
+    print('Model generated outputs:')
+    display_interleaved_outputs(model_outputs, one_img_per_ret=False)
