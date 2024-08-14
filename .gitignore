@@ -6,4 +6,5 @@ venv
 runs/
 data/
 fromage_model/cc3m_embeddings.pkl
+fromage_model/full_ckpt.pth.tar
 images/
