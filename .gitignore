@@ -7,5 +7,5 @@ runs/
 data/
 fromage_model/cc3m_embeddings.pkl
 fromage_model/finetuned_model
-fromage_model/full_ckpt.pth.tar
+fromage_model/ckpt.pth.tar
 images/

@@ -628,13 +628,12 @@ class Fromage(nn.Module):
 
 def load_fromage(model_dir: str) -> Fromage:
   model_args_path = os.path.join(model_dir, 'model_args.json')
-  model_ckpt_path = os.path.join(model_dir, 'full_ckpt.pth.tar')
+  model_ckpt_path = os.path.join(model_dir, 'ckpt.pth.tar')
   embs_paths = [s for s in glob.glob(os.path.join(model_dir, 'cc3m_embeddings*.pkl'))]
   # Trying to add Scizor embeddings
   for s in glob.glob(os.path.join(model_dir, 'scizor_embeddings*.pkl')):
       embs_paths.append(s)
   # sciz_embs_paths = [s for s in glob.glob(os.path.join(model_dir, 'scizor_embeddings*.pkl'))]
-
 
   if not os.path.exists(model_args_path):
     raise ValueError(f'model_args.json does not exist in {model_dir}.')
@@ -649,11 +648,23 @@ def load_fromage(model_dir: str) -> Fromage:
   emb_matrix = []
 
   # These were precomputed for all CC3M images with `model.get_visual_embs(image, mode='retrieval')`.
+  i = 0
   for p in embs_paths:
     with open(p, 'rb') as wf:
         train_embs_data = pkl.load(wf)
         path_array.extend(train_embs_data['paths'])
-        emb_matrix.append(train_embs_data['embeddings'])
+        embeds = train_embs_data['embeddings']
+        # Convert embeds to bf16 if need
+        if i != 0:
+          m, n = len(embeds), len(embeds[0])
+          new_embeds = np.zeros((m,n),dtype=float)
+          for a in range(m):
+            for b in range(n):
+              new_embeds[a][b] = embeds[a][b].float().numpy()
+          emb_matrix.append(new_embeds)
+        else:
+          emb_matrix.append(embeds)
+    i += 1
   emb_matrix = np.concatenate(emb_matrix, axis=0)
 
   # Number of paths should be equal to number of embeddings.
