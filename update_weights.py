@@ -30,4 +30,4 @@ for k,v in weights.items():
         checkpoint2['state_dict'][v] = checkpoint1['state_dict'][k]
     print(k)
 
-torch.save(checkpoint2, './fromage_model/full_ckpt' + '.pth.tar')
+torch.save(checkpoint2, './fromage_model/ckpt' + '.pth.tar')
