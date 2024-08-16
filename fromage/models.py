@@ -628,7 +628,7 @@ class Fromage(nn.Module):
 
 def load_fromage(model_dir: str) -> Fromage:
   model_args_path = os.path.join(model_dir, 'model_args.json')
-  model_ckpt_path = os.path.join(model_dir, 'ckpt.pth.tar')
+  model_ckpt_path = os.path.join(model_dir, 'ckpt_pruned.pth.tar')
   embs_paths = [s for s in glob.glob(os.path.join(model_dir, 'cc3m_embeddings*.pkl'))]
   # Trying to add Scizor embeddings
   for s in glob.glob(os.path.join(model_dir, 'scizor_embeddings*.pkl')):
@@ -693,14 +693,11 @@ def load_fromage(model_dir: str) -> Fromage:
   # Load pretrained linear mappings and [RET] embeddings.
   checkpoint = torch.load(model_ckpt_path)
   model.load_state_dict(checkpoint['state_dict'], strict=False)
-  # for key, _ in checkpoint['state_dict'].items():
-  #   print(f"Key = {key}")
-  # exit(0)
   # with torch.no_grad():
   #   print(model.model.input_embeddings.weight[model.model.retrieval_token_idx, :].shape)
   #   print(checkpoint['state_dict']['module.model.input_embeddings.weight'].squeeze().shape)
   #   exit(0)
-      # model.model.input_embeddings.weight[model.model.retrieval_token_idx, :].copy_(checkpoint['state_dict']['module.model.input_embeddings.weight'].squeeze().cpu().detach())
+  #   model.model.input_embeddings.weight[model.model.retrieval_token_idx, :].copy_(checkpoint['state_dict']['module.model.input_embeddings.weight'].squeeze().cpu().detach())
   logit_scale = model.model.logit_scale.exp()
   emb_matrix = torch.tensor(emb_matrix, dtype=logit_scale.dtype).to(logit_scale.device)
   emb_matrix = emb_matrix / emb_matrix.norm(dim=1, keepdim=True)

@@ -9,3 +9,5 @@ fromage_model/cc3m_embeddings.pkl
 fromage_model/finetuned_model
 fromage_model/ckpt.pth.tar
 images/
+scizor_model/cc3m_embeddings.pkl
+scizor_model/ckpt_pruned.pth.tar
