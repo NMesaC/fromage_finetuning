@@ -1,17 +1,16 @@
-# Grounding Language Models to Images for Multimodal Inputs and Outputs
+# Finetuning Fromage for Scizor (Pokemon)
 
-<p align="center">
-<img alt="FROMAGe model architecture" src="./teaser.png" width="90%">
-<br/><br/>
-<img alt="FROMAGe chat animation" src="./teaser_gif.gif" width="40%">
-</p>
+This repository hosts the code and model weights for finetuning FROMAGE, specifically for Scizor (Pokemon).
 
-This repository hosts the code and model weights for FROMAGe.
+The below links are of the original Paper, Webpage and Github links.
 
-[Paper](https://arxiv.org/abs/2301.13823) | [Project Webpage](https://jykoh.com/fromage) | [Demo](https://huggingface.co/spaces/jykoh/fromage)
+[Paper](https://arxiv.org/abs/2301.13823) | [Project Webpage](https://jykoh.com/fromage) | [Github](https://github.com/kohjingyu/fromage)
 
 
 ## Setup instructions
+
+### Data Collection and Annotation
+
 
 ### Environment
 Set up a new virtualenv, and install required libraries:
