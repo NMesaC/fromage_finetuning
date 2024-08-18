@@ -698,6 +698,7 @@ def load_fromage(model_dir: str) -> Fromage:
   #   print(checkpoint['state_dict']['module.model.input_embeddings.weight'].squeeze().shape)
   #   exit(0)
   #   model.model.input_embeddings.weight[model.model.retrieval_token_idx, :].copy_(checkpoint['state_dict']['module.model.input_embeddings.weight'].squeeze().cpu().detach())
+  #   NOTE: This originally did not load due to shape mismatches but if the state dict is indexed properly, this may fix some small bugs with the model.
   logit_scale = model.model.logit_scale.exp()
   emb_matrix = torch.tensor(emb_matrix, dtype=logit_scale.dtype).to(logit_scale.device)
   emb_matrix = emb_matrix / emb_matrix.norm(dim=1, keepdim=True)
