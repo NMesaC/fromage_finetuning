@@ -56,6 +56,8 @@ The script may need to be edited to change the .tsv files initially fed and wher
 ```
 python3 download_images_change_tsv.py
 ```
+### Model Preparation
+
 Now, we need to run the finetuning script for 1 epoch quickly so we can get an unpruned version of the model for training.
 ```
 randport=$(shuf -i8000-9999 -n1)  # Generate a random port number
@@ -73,6 +75,8 @@ In essence, we uncompress our model with the above step so we can perform the fi
 ```
 python3 update_weights.py
 ```
+
+### Finetuning
 Finally, we can perform finetuning.
 ```
 randport=$(shuf -i8000-9999 -n1)  # Generate a random port number
