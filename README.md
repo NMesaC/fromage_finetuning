@@ -1,6 +1,6 @@
 # Finetuning Fromage for Scizor (Pokemon)
 
-This repository hosts the code and model weights for finetuning FROMAGE, specifically for Scizor (Pokemon).
+This repository hosts the code and model weights for finetuning FROMAGE. The Scizor Dataset included is a small dataset for the Pokemon Scizor.
 
 The below links are of the original Paper, Webpage and Github links.
 
@@ -11,101 +11,97 @@ The below links are of the original Paper, Webpage and Github links.
 
 ### Data Collection and Annotation
 
+I collected the data using the files in the webscraper folder. Get a Serpapi key and set the parameters in the scraper.py file to get the desired images.
+Then run the following:
+```
+python scraper.py
+python parser.py
+```
+To scrape the images from Google Images and then parse the JSON file into a .xlsx file in the form of
+```
+Description | URL | Image
+```
+For each row.
 
 ### Environment
-Set up a new virtualenv, and install required libraries:
+I performed experiments on a Lambda Lab machine, which utilizes a fresh Ubuntu image using either 1xA100 or 1xA6000.
+I then followed these next steps.
+
+Download the repository.
 ```
+git clone https://github.com/NMesaC/fromage_finetuning_pokemon.git
+```
+Set up the environment and environment variables
+```
+cd fromage_finetuning_pokemon
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+export PYTHONPATH=$PYTHONPATH:~/fromage_finetuning_pokemon/
 ```
-
-Add the `fromage` library to PYTHONPATH:
+Install gdown to download google drive links (and upgrade pip) and use gdown to download the Precomputed cc3m Embeddings for Image Retrieval
 ```
-export PYTHONPATH=$PYTHONPATH:/home/path/to/fromage/
+python3 -m pip install --upgrade pip
+pip install gdown
+cd fromage_model
+gdown 1wMojZNqEwApNlsCZVvSgQVtZLgbeLoKi
 ```
-
-### Pretrained Checkpoints
-
-The FROMAGe model weights (linear layers and [RET] embedding) are small (around 11MB), and are included in this Git repo. They will be in the `fromage_model/` folder after cloning. The checkpoint and model config in `fromage_model/` reproduce the results reported in our paper.
-
-We have also included a second model trained with a stronger visual linear layer (4 visual tokens instead of 1), located at `fromage_model/fromage_vis4`. This model generally does better on dialogue settings and does not require as much tuning of inference time hyperparameters, as it is able to better represent more complex images.
-
-### Precomputed Embeddings For Image Retrieval
-
-The visual embeddings for Conceptual Captions images with valid URLs are precomputed and stored at this [URL](https://drive.google.com/file/d/1wMojZNqEwApNlsCZVvSgQVtZLgbeLoKi/view?usp=share_link). These are used to enable the model to retrieve images. The embeddings take up around 3GB, and are compatible with both model configs we provide. Download the files and place `cc3m_embeddings.pkl` into the `fromage_model/` directory.
-
-If you wish to precompute these embeddings for a different set of image URLs or for a different model, edit `fromage/extract_img_embs.py` with the list of image URLs and run it:
-
-```python fromage/extract_img_embs.py```
-
-
-## Inference
-
-Check out `FROMAGe_example_notebook.ipynb` for examples on calling the model for inference. Several of the figures presented in the paper are reproduced in this notebook using greedy decoding of the model. Note that there may be minor differences in image outputs due to CC3M images being lost over time.
-
-
-## Training
-
-### Preparing CC3M
-
-Our model is trained on the [Conceptual Captions](https://ai.google.com/research/ConceptualCaptions) dataset. After following the instructions on the website to download the captions and images, format it into a `.tsv` file as follows:
-
+I ran these commands instead of updating the requirements.txt, but either work.
 ```
-caption image
-A picture of a cat  cat.png
-Mountains  mountain.png
+pip3 uninstall torch torchvision torchaudio
+pip3 install torch torchvision torchaudio
 ```
-where each line contains the caption followed by the filename of the image files. Save these `.tsv` files into the `dataset/` folder (the default names expected are `cc3m_train.tsv` and `cc3m_val.tsv`). The repo contains two placeholder files, and you will have to replace them with the appropriate data.
-
-The corresponding image files should be saved in the `data/` directory. The directory can be changed with the `--image-dir` runtime flag.
-
-
-### Training FROMAGe
-
-After preparing CC3M as detailed above, you can start a new training job with the following command line flag:
-
+Run the following Python script to turn a given training and validation dataset from .tsv files with URL's to .tsv files with local paths to images.
+The script may need to be edited to change the .tsv files initially fed and where some paths point.
+```
+python3 download_images_change_tsv.py
+```
+Now, we need to run the finetuning script for 1 epoch quickly so we can get an unpruned version of the model for training.
 ```
 randport=$(shuf -i8000-9999 -n1)  # Generate a random port number
-python -u main.py \
+python -u finetuning.py \
     --dist-url "tcp://127.0.0.1:${randport}" --dist-backend 'nccl' \
     --multiprocessing-distributed --world-size 1 --rank 0 \
-    --dataset=cc3m  --val-dataset=cc3m \
+    --epochs=1 --steps-per-epoch=10 \
+    --dataset=scizor  --val-dataset=scizor \
     --opt-version='facebook/opt-6.7b' --visual-model='openai/clip-vit-large-patch14' \
-    --exp_name='fromage_exp' --image-dir='data/'  --log-base-dir='runs/' \
-    --batch-size=180  --val-batch-size=100  --learning-rate=0.0003 --precision='bf16'  --print-freq=100
+    --exp_name='fromage_exp' --image-dir='images/'  --log-base-dir='runs/' \
+    --batch-size=2  --val-batch-size=2  --learning-rate=0.0003 --precision='bf16'  --print-freq=100
 ```
-
-On a single A6000 GPU, the model converges within 24 hours (with a batch size of 180). For GPUs with smaller memory available, you might need to reduce the batch size, enable gradient accumulation, or adjust hyperparameters to get good performance. You may also have to disable NCCL P2P with `export NCCL_P2P_DISABLE=1` if you run into issues.
-
-
-### Pruning Model Weights
-
-As FROMAGe only consists of a few pretrained linear layers and the `[RET]` embedding, we can discard most of the pretrained weights to save on disk space. If you have trained a new model, and wish to do so, you can use `fromage/prune_model_ckpt.py` to prune the model weights. We used the same script to create the weights in the `fromage_model` directory.
-
-
-### Unit Tests
-
-You can also test that the code runs locally by running the unit test with `pytest -x`. This runs a short training and evaluation job, with smaller models, to ensure the code works. The test should complete within approximately 90s.
-
-Note that because of exception catching (to ensure data errors don't terminate training), the test will silently fail and not terminate if there is an I/O error when reading data. Hence, we recommend running the Python command above for debugging data preprocessing.
-
-
-## Evaluation
-
-We provide an evaluation script to reproduce our results on contextual image retrieval on Visual Storytelling (results of Table 1 of our paper). The script can be run from `evals/eval_vist_retrieval.py`. There is also a iPython notebook version (`VIST_Contextual_Image_Retrieval.ipynb`) in the same directory.
-
-Similarly, we provide scripts to reproduce the text generation and image retrieval results on VisDial (presented in Table 2 of our paper). The script for VisDial text generation can be run from `evals/eval_visdial_generation.py` (or through the notebook version, `VisDial_Inference_IT2T_Generation.ipynb`). This reports the NDCG, MRR, and R@k scores for VisDial.
-
-The results for image retrieval can be reproduced by running the `evals/eval_visdial_retrieval.py` script (or through the notebook version `VisDial_Inference_T2I_Retrieval.ipynb`), which reports R@k scores.
-
-
-## Gradio Demo
-
-You can launch your own version of the Gradio demo locally by running `python demo/app.py`, or duplicating the [HuggingFace space](https://huggingface.co/spaces/jykoh/fromage).
-
-Check out other unofficial HuggingFace spaces for FROMAGe:
-- [alvanlii FROMAGe demo](https://huggingface.co/spaces/alvanlii/FROMAGe)
+Next, we need to update the weights of this unpruned model to have the pre-trained models weights.
+In essence, we uncompress our model with the above step so we can perform the finetuning step on a pre-trained checkpoint, instead of from scratch.
+```
+python3 update_weights.py
+```
+Finally, we can perform finetuning.
+```
+randport=$(shuf -i8000-9999 -n1)  # Generate a random port number
+python -u finetuning.py \
+    --dist-url "tcp://127.0.0.1:${randport}" --dist-backend 'nccl' \
+    --multiprocessing-distributed --world-size 1 --rank 0 \
+    --epochs=20 --steps-per-epoch=10000 \
+    --max-len=50 \
+    --resume='./fromage_model/ckpt.pth.tar' \
+    --dataset=scizor  --val-dataset=scizor \
+    --opt-version='facebook/opt-6.7b' --visual-model='openai/clip-vit-large-patch14' \
+    --exp_name='fromage_exp' --image-dir='images/'  --log-base-dir='runs/' \
+    --batch-size=2  --val-batch-size=2  --learning-rate=0.0003 --precision='bf16'  --print-freq=100
+```
+Now, this full model is uncompressed, and will not fit on most GPU's, so for using the notebook file, we prune it again.
+```
+cd fromage
+python3 prune_scizor.py
+```
+This script might need to be edited slightly for different uses.
+With the pruned model, we need to copy over the embedding .pkl files so the notebook can run, as well as the model args.
+We do so with the following line: (Some paths may change)
+```
+cd ..
+cp ./runs/fromage_exp_1/model_args.json ./scizor_model
+cp ./fromage_model/cc3m_embeddings.pkl ./scizor_model
+cp ./fromage_model/scizor_embeddings.pkl ./scizor_model
+```
+Now, we can simply run the notebook and use the model in a demo!
 
 
 ## Citation
